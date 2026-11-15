@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "index.html"
       - "web/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
@@ -29,13 +30,23 @@ jobs:
         with:
           node-version: 22
 
+      - name: Add the site entry page
+        run: cp index.html web/index.html
+
       - name: Install dependencies
         working-directory: web
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: Build TypeScript
         working-directory: web
         run: npm run build
+
+      - name: Verify deployable site files
+        working-directory: web
+        run: |
+          test -s index.html
+          test -s styles.css
+          test -s dist/connector.js
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
